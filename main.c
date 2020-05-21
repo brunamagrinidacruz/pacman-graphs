@@ -3,12 +3,6 @@
 #include "adjacency_list.h"
 #include "algorithms.h"
 
-#define INSERT_EDGE 1
-#define REMOVE_EDGE 2
-#define SHOW_LIST 3
-#define BFS 4
-#define DFS 5
-
 int main(void) {
     GRAPH* graph;
     int i;
