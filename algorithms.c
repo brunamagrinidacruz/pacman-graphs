@@ -4,7 +4,36 @@ typedef enum {
     white, grey, black
 } colors;
 
-void execute_bfs(GRAPH* graph, int vertex, int distancy[], int ancestor[], colors color[]) {
+void print_board(GRAPH* graph, int size, int player_position, int enemy_position) {
+    int i, j, k;
+    int position = 0;
+
+    printf("\n");
+    printf("+");
+    for(k = 0; k < size; k++)
+        printf("-----");
+
+    for(i = 0; i < size; i++) {
+        printf("\n| ");
+        for(j = 0; j < size; j++) {
+            if(player_position == position) 
+                printf("PN | ");
+            else if(enemy_position == position)
+                printf("EN | ");
+            else if(position < 10)
+                printf("0%d | " , position);
+            else 
+                printf("%d | " , position);
+            position++;
+        }
+        printf("\n");
+        printf("+");
+        for(k = 0; k < size; k++)
+            printf("-----");
+    }
+}
+
+void execute_bfs(GRAPH* graph, int vertex, int distancy[], colors color[]) {
     //Creating a queue that will stored the adjacents vertex in sequence of visited. 
     //The BFS will be execute to all vertex inside the queue
     QUEUE* queue;
@@ -16,7 +45,6 @@ void execute_bfs(GRAPH* graph, int vertex, int distancy[], int ancestor[], color
     distancy[vertex] = 0;
 
     queue_insert(queue, vertex);
-    printf("vertex: %d | distancy: %d | ancestor: %d\n", vertex, distancy[vertex], ancestor[vertex]);
 
     int current_vertex = -1, next_vertex = -1;
 
@@ -40,9 +68,7 @@ void execute_bfs(GRAPH* graph, int vertex, int distancy[], int ancestor[], color
                     //It's visited and now we have to put in queue to be processed
                     color[current_vertex] = grey;
                     distancy[current_vertex] = distancy[initial_vertex] + 1;
-                    ancestor[current_vertex] = initial_vertex;
                     queue_insert(queue, current_vertex);
-                    printf("vertex: %d | distancy: %d | ancestor: %d\n", current_vertex, distancy[current_vertex], ancestor[current_vertex]);
                 }
             }
         }
@@ -52,15 +78,11 @@ void execute_bfs(GRAPH* graph, int vertex, int distancy[], int ancestor[], color
     queue_delete(&queue);
 }
 
-void bfs(GRAPH* graph) {
+void bfs(GRAPH* graph, int enemy_position, int distancy[]) {
     int i;
     int vertex;
     int number_of_vertices = graph_number_of_vertices(graph);
-    int *distancy, *ancestor;
-    colors *color;
-    distancy = (int*) malloc (sizeof(int) * number_of_vertices);
-    ancestor = (int*) malloc (sizeof(int) * number_of_vertices);
-    color = (colors*) malloc (sizeof(colors) * number_of_vertices);
+    colors *color = (colors*) malloc (sizeof(colors) * number_of_vertices);
 
     //Initializing
     //color: as white because any vertex was visited
@@ -69,82 +91,106 @@ void bfs(GRAPH* graph) {
     for(i = 0; i < number_of_vertices; i++) {
         color[i] = white;
         distancy[i] = -1;
-        ancestor[i] = -1;
     }
 
-    //Verifing if some vertex is still white. If it's, execute bfs to it
-    for(i = 0; i < number_of_vertices; i++) {
-        if(color[i] == white)
-            execute_bfs(graph, i, distancy, ancestor, color);
-    }
-
-    free(distancy);
-    free(ancestor);
+    //Por ser um tabuleiro, é possível chegar em todos os vértices
+    //A partir de qualquer vértices, por isso é executado apenas uma vez
+    execute_bfs(graph, enemy_position, distancy, color);
+    
     free(color);
 }
 
-void execute_dfs(int *index, GRAPH* graph, int vertex, colors color[], int visited[], int processed[], int ancestor[]) {
-    int current_vertex = -1, next_vertex = -1;
-    color[vertex] = grey;
-    (*index) = (*index) + 1;
-    visited[vertex] = (*index);
-
-    //Verify if there is vertex in adjacency list
-     if(!graph_is_adjacency_list_empty(graph, vertex)) {
-        int first_vertex_list_adjacency = graph_first_vertex_list_adjacency(graph, vertex);
-        int is_end_vertex_list_adjacency = 0;
-
-        //We also initializing the next_vertex as the first vertex of the list,
-        //This because the function graph_next_vertex_list_adjacency will put the next_vertex
-        //In current_vertex
-        next_vertex = first_vertex_list_adjacency;
-        //While the adjacency list of the vertex doesn't end, continue to visited their adjacencys
-        while(!is_end_vertex_list_adjacency) {
-            //This function will put in current_vertex the id of the vertex we are analizing
-            //And in next_vertex, it will put the value of the next_vertex to be executed
-            is_end_vertex_list_adjacency = graph_next_vertex_list_adjacency(graph, vertex, &current_vertex, &next_vertex);
-            //If the current_vertex is white, its need to be visited
-            if(color[current_vertex] == white) {
-                ancestor[current_vertex] = vertex;
-                execute_dfs(index, graph, current_vertex, color, visited, processed, ancestor); 
-            }
-        }
-     }
-
-    //If the adjacency list was all visited, the vertex now is black
-    (*index) = (*index) + 1;
-    processed[vertex] = (*index);
-    printf("%d | by ancestor %d | grey in %d | black in %d\n", vertex, ancestor[vertex], visited[vertex], processed[vertex]);
-    color[vertex] = black;
-}
-
-void dfs(GRAPH* graph) {
+void wavefront(GRAPH* graph, int size, int player_position, int distancy[]) {
     if(graph != NULL) {
-        int i;
-        int index = 0; //Count
+
+        //O personagem chegou ao inimigo
+        if(distancy[player_position] == 0) {
+            printf("The player finded the enemy in position %d!", player_position);
+            return;
+        }
+
+        printf("Player is in %d\n", player_position);
+
         int number_of_vertices = graph_number_of_vertices(graph);
+        int analyzed_position, player_next_position; 
+        int min_distancy = -1;
 
-        colors *color = (colors*) malloc (sizeof(colors) * number_of_vertices); //Store the color of each vertex
-        int *visited = (int *) malloc (sizeof(int) * number_of_vertices); //Store when the vertex was visited
-        int *processed = (int *) malloc (sizeof(int) * number_of_vertices); //Store when the vertex was processed
-        int *ancestor = (int *) malloc (sizeof(int) * number_of_vertices); //Store who is the ancestor to each vertex
+        //Neste caso, são os da lateral esquerda do tabuleiro
+        if(player_position % size == 0) {
+            analyzed_position = player_position+1; //Direita
+            min_distancy = distancy[analyzed_position]; 
+            player_next_position = analyzed_position;
 
-        for(i = 0; i < number_of_vertices; i++) {
-            color[i] = white;
-            visited[i] = -1;
-            processed[i] = -1;
-            ancestor[i] = -1;
+            analyzed_position = player_position-size;  //Em cima
+            if(analyzed_position >= 0)             
+                if(distancy[analyzed_position] < min_distancy) {
+                    min_distancy = distancy[analyzed_position]; 
+                    player_next_position = analyzed_position;
+                }    
+
+            analyzed_position = player_position+size; //Embaixo
+            if(analyzed_position < number_of_vertices) 
+                //Se a distância da posição abaixo até o inimigo for menor que o da posição a direita, esse é o vértice no qual devemos ir
+                if(distancy[analyzed_position] < min_distancy) {
+                    min_distancy = distancy[analyzed_position]; 
+                    player_next_position = analyzed_position;
+                }
+            
+            wavefront(graph, size, player_next_position, distancy);
+            return;
         }
 
-        //To each vertex that is equal to white, call execute_dfs
-        //This is useful if it is a disconnected graph
-        for(i = 0; i < number_of_vertices; i++) {
-            if(color[i] == white)
-                execute_dfs(&index, graph, i, color, visited, processed, ancestor);
+        //Neste caso, são os da lateral direita do tabuleiro
+        if(player_position % size == (size-1)) {
+            analyzed_position = player_position-1; //Esquerda
+            min_distancy = distancy[analyzed_position]; 
+            player_next_position = analyzed_position;
+
+            analyzed_position = player_position-size;  //Em cima
+            if(analyzed_position >= 0)             
+                if(distancy[analyzed_position] < min_distancy) {
+                    min_distancy = distancy[analyzed_position]; 
+                    player_next_position = analyzed_position;
+                }    
+
+            analyzed_position = player_position+size; //Embaixo
+            if(analyzed_position < number_of_vertices) 
+                //Se a distância da posição abaixo até o inimigo for menor que o da posição a esquerda, esse é o vértice no qual devemos ir
+                if(distancy[analyzed_position] < min_distancy) {
+                    min_distancy = distancy[analyzed_position]; 
+                    player_next_position = analyzed_position;
+                }
+
+            wavefront(graph, size, player_next_position, distancy);
+            return;
         }
 
-        free(color);
-        free(visited);
-        free(processed);
+        //Inicializamos com o valor a direita pois sempre temos garantia que esse bloco existe para esse conjunto de vértices
+        analyzed_position = player_position+1; //Direita
+        min_distancy = distancy[analyzed_position];
+        player_next_position = analyzed_position;
+
+        analyzed_position = player_position+size; //Em baixo
+        if(analyzed_position < number_of_vertices) 
+            if(distancy[analyzed_position] < min_distancy) {
+                min_distancy = distancy[analyzed_position]; 
+                player_next_position = analyzed_position;
+            }
+
+        analyzed_position = player_position-1; //A esquerda
+        if(distancy[analyzed_position] < min_distancy) {
+            min_distancy = distancy[analyzed_position]; 
+            player_next_position = analyzed_position;
+        }
+
+        analyzed_position = player_position-size;  //Em cima
+        if(analyzed_position >= 0)             
+            if(distancy[analyzed_position] < min_distancy) {
+                min_distancy = distancy[analyzed_position]; 
+                player_next_position = analyzed_position;
+        }
+
+        wavefront(graph, size, player_next_position, distancy);
+        return;
     }
 }
