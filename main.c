@@ -1,3 +1,8 @@
+/*
+ * Bruna Magrini da Cruz, 11218813
+ * Marlon José Martins, 10249010
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "adjacency_list.h"
@@ -93,10 +98,9 @@ int main(void) {
     bfs(graph, enemy_position, distancy);
 
     //Variável para guardar quantos blocos o player deslocou
-    int *displacement = (int*) malloc(sizeof(int));
-    displacement[0] = 0;
+    int displacement = 0;
 
-    wavefront(graph, size, player_position, distancy, displacement);
+    wavefront(graph, size, player_position, distancy, &displacement);
     
     printf("\n");
     free(distancy);

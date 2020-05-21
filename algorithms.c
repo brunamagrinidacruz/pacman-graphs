@@ -110,7 +110,7 @@ void wavefront(GRAPH* graph, int size, int player_position, int distancy[], int*
 
         printf("Player is in %d\n", player_position);
 
-        displacement[0]++;
+        (*displacement)++;
         int number_of_vertices = graph_number_of_vertices(graph);
         int analyzed_position, player_next_position; 
         int min_distancy = -1;
