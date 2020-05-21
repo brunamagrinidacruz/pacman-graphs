@@ -92,10 +92,15 @@ int main(void) {
     distancy = (int*) malloc (sizeof(int) * number_of_vertices);
     bfs(graph, enemy_position, distancy);
 
-    wavefront(graph, size, player_position, distancy);
+    //Variável para guardar quantos blocos o player deslocou
+    int *displacement = (int*) malloc(sizeof(int));
+    displacement[0] = 0;
+
+    wavefront(graph, size, player_position, distancy, displacement);
     
     printf("\n");
     free(distancy);
+    free(displacement);
     graph_delete(&graph);
 
     return 0;

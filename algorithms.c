@@ -100,17 +100,18 @@ void bfs(GRAPH* graph, int enemy_position, int distancy[]) {
     free(color);
 }
 
-void wavefront(GRAPH* graph, int size, int player_position, int distancy[]) {
+void wavefront(GRAPH* graph, int size, int player_position, int distancy[], int* displacement) {
     if(graph != NULL) {
 
         //O personagem chegou ao inimigo
         if(distancy[player_position] == 0) {
-            printf("The player finded the enemy in position %d!", player_position);
+            printf("The player displacement %d blocks and finded the enemy in position %d!", displacement[0], player_position);
             return;
         }
 
         printf("Player is in %d\n", player_position);
 
+        displacement[0]++;
         int number_of_vertices = graph_number_of_vertices(graph);
         int analyzed_position, player_next_position; 
         int min_distancy = -1;
@@ -122,11 +123,11 @@ void wavefront(GRAPH* graph, int size, int player_position, int distancy[]) {
             player_next_position = analyzed_position;
 
             analyzed_position = player_position-size;  //Em cima
-            if(analyzed_position >= 0)             
+            if(analyzed_position >= 0)
                 if(distancy[analyzed_position] < min_distancy) {
                     min_distancy = distancy[analyzed_position]; 
                     player_next_position = analyzed_position;
-                }    
+                }
 
             analyzed_position = player_position+size; //Embaixo
             if(analyzed_position < number_of_vertices) 
@@ -136,7 +137,7 @@ void wavefront(GRAPH* graph, int size, int player_position, int distancy[]) {
                     player_next_position = analyzed_position;
                 }
             
-            wavefront(graph, size, player_next_position, distancy);
+            wavefront(graph, size, player_next_position, distancy, displacement);
             return;
         }
 
@@ -161,7 +162,7 @@ void wavefront(GRAPH* graph, int size, int player_position, int distancy[]) {
                     player_next_position = analyzed_position;
                 }
 
-            wavefront(graph, size, player_next_position, distancy);
+            wavefront(graph, size, player_next_position, distancy, displacement);
             return;
         }
 
@@ -188,9 +189,9 @@ void wavefront(GRAPH* graph, int size, int player_position, int distancy[]) {
             if(distancy[analyzed_position] < min_distancy) {
                 min_distancy = distancy[analyzed_position]; 
                 player_next_position = analyzed_position;
-        }
+            }
 
-        wavefront(graph, size, player_next_position, distancy);
+        wavefront(graph, size, player_next_position, distancy, displacement);
         return;
     }
 }
