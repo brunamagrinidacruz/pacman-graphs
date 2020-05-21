@@ -5,6 +5,11 @@ typedef enum {
 } colors;
 
 void print_board(GRAPH* graph, int size, int player_position, int enemy_position) {
+    if(size > 10) {
+        printf("The board is too big to be printed.");
+        return;
+    }
+
     int i, j, k;
     int position = 0;
 

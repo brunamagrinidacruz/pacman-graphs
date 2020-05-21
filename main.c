@@ -67,7 +67,7 @@ int main(void) {
     scanf("%d", &player_position);
 
     if(player_position >= number_of_vertices || player_position < 0) {
-        printf("Invalid position\n");
+        printf("Invalid position.\n");
         return 0;
     }
 
@@ -75,7 +75,7 @@ int main(void) {
     scanf("%d", &enemy_position);
 
     if(enemy_position >= number_of_vertices || player_position < 0) {
-        printf("Invalid position\n");
+        printf("Invalid position.\n");
         return 0;
     }
 
