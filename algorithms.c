@@ -39,45 +39,43 @@ void print_board(GRAPH* graph, int size, int player_position, int enemy_position
 }
 
 void execute_bfs(GRAPH* graph, int vertex, int distancy[], colors color[]) {
-    //Creating a queue that will stored the adjacents vertex in sequence of visited. 
-    //The BFS will be execute to all vertex inside the queue
+    //Criando uma fila que irá armazenar os vértices na sequência que foram visitados
     QUEUE* queue;
     queue = queue_create();
 
-    //Initializing vertex as grey (visited)
+    //Marcando o vértice como cinza (visitado)
     color[vertex] = grey;
-    //Because this vertex is the initial vertex, distancy = 0
+    //Como é o primeiro vértice, a distância = 0
     distancy[vertex] = 0;
 
     queue_insert(queue, vertex);
 
     int current_vertex = -1, next_vertex = -1;
 
-    //While queue is not empty, there is still vertex to be visited
+    //Enquanto a fila não está vazia, há vértices para serem visitados
     while(!queue_is_empty(queue)) {
         int initial_vertex = queue_remove(queue);
-        //Verify if there is vertex in adjacency list
+        //Verificando se ainda há vértices na lista de adjacência
         if(!graph_is_adjacency_list_empty(graph, initial_vertex)) {
             int first_vertex_list_adjacency = graph_first_vertex_list_adjacency(graph, initial_vertex);
             int is_end_vertex_list_adjacency = 0;
-            //We also initializing the next_vertex as the first vertex of the list,
-            //This because the function graph_next_vertex_list_adjacency will put the next_vertex
-            //In current_vertex
+            //Nós inicializamos o next_vertex como o primeiro vértice da lista
+            //Isso porque a função graph_next_vertex_list_adjancency irá colocar o next_vertex dentro de current_vertex
             next_vertex = first_vertex_list_adjacency;
-            //While the adjacency list of the vertex doesn't end, continue to visited their adjacencys
+            //Enquanto a lista de adjacência não acabou, continua percorrendo
             while(!is_end_vertex_list_adjacency) {
-                //This function will put in current_vertex the id of the vertex we are analizing
-                //And in next_vertex, it will put the value of the next_vertex to be executed
+                //Essa função irá colocar em current_vertex o id do vértice que estamos analisando
+                //E next_vertex será o valor do próximo vértices da lista de adjacência
                 is_end_vertex_list_adjacency = graph_next_vertex_list_adjacency(graph, initial_vertex, &current_vertex, &next_vertex);
                 if(color[current_vertex] == white) {
-                    //It's visited and now we have to put in queue to be processed
+                    //Foi visitado então deve entrar na fila
                     color[current_vertex] = grey;
                     distancy[current_vertex] = distancy[initial_vertex] + 1;
                     queue_insert(queue, current_vertex);
                 }
             }
         }
-        //When all vertices in adjacency list are executed (or if there is no adjacency vertext)
+        //Quando todos os vértices adjacentes são executados, ou se não há vértices adjacentes, define como preto (processado)
         color[initial_vertex] = black;
     }
     queue_delete(&queue);
@@ -89,10 +87,7 @@ void bfs(GRAPH* graph, int enemy_position, int distancy[]) {
     int number_of_vertices = graph_number_of_vertices(graph);
     colors *color = (colors*) malloc (sizeof(colors) * number_of_vertices);
 
-    //Initializing
-    //color: as white because any vertex was visited
-    //distancy: as -1 because any vertex had its distancy calculeted
-    //ancestor: as -1 because any vertex has a ancestor yet
+    //Inicializando as cores do vértice em branco
     for(i = 0; i < number_of_vertices; i++) {
         color[i] = white;
         distancy[i] = -1;
