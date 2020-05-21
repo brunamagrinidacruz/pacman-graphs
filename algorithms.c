@@ -13,7 +13,6 @@ void print_board(GRAPH* graph, int size, int player_position, int enemy_position
     int i, j, k;
     int position = 0;
 
-    printf("\n");
     printf("+");
     for(k = 0; k < size; k++)
         printf("-----");
@@ -105,7 +104,7 @@ void wavefront(GRAPH* graph, int size, int player_position, int distancy[], int*
 
         //O personagem chegou ao inimigo
         if(distancy[player_position] == 0) {
-            printf("The player displacement %d blocks and finded the enemy in position %d!", displacement[0], player_position);
+            printf("The player displacted %d blocks and finded the enemy in position %d!", displacement[0], player_position);
             return;
         }
 
