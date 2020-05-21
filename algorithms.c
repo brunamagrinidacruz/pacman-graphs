@@ -104,7 +104,7 @@ void wavefront(GRAPH* graph, int size, int player_position, int distancy[], int*
 
         //O personagem chegou ao inimigo
         if(distancy[player_position] == 0) {
-            printf("The player displacted %d blocks and finded the enemy in position %d!", displacement[0], player_position);
+            printf("The player displaced %d blocks and finded the enemy in position %d!", displacement[0], player_position);
             return;
         }
 
