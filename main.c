@@ -104,7 +104,6 @@ int main(void) {
     
     printf("\n");
     free(distancy);
-    free(displacement);
     graph_delete(&graph);
 
     return 0;
