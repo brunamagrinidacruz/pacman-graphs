@@ -13,6 +13,11 @@ int main(void) {
 
     printf("Enter the number that will represent the height and width of the board (number * number): ");
     scanf("%d", &size);
+    if(size < 0) {
+        printf("Invalid size.\n");
+        return 0;
+    }
+
     number_of_vertices = size * size;
     graph = graph_create(number_of_vertices);
 
